@@ -1,121 +1,104 @@
+Table "Aeroporto" {
+  "codigo_aeroporto" VARCHAR(10) [pk, not null]
+  "nome" VARCHAR(100) [not null]
+  "cidade" VARCHAR(100) [not null]
+  "estado" VARCHAR(2) [not null]
+}
 
-CREATE DATABASE IF NOT EXISTS companhia_aerea;
-USE companhia_aerea;
+Table "Modelo_Aeronave" {
+  "nome_modelo" VARCHAR(50) [pk, not null]
+  "empresa" VARCHAR(100) [not null]
+  "maximo_assentos" INT [not null]
+}
 
--- Entidade: AEROPORTO
-CREATE TABLE AEROPORTO (
-    Codigo_aeroporto VARCHAR(10) PRIMARY KEY,
-    Nome VARCHAR(100) NOT NULL,
-    Cidade VARCHAR(100) NOT NULL,
-    Estado VARCHAR(100) NOT NULL
-);
+Table "Pode_Pousar" {
+  "nome_modelo" VARCHAR(50) [not null]
+  "codigo_aeroporto" VARCHAR(10) [not null]
 
--- Entidade: MODELO_AERONAVE
-CREATE TABLE MODELO_AERONAVE (
-    Nome_modelo VARCHAR(50) PRIMARY KEY,
-    Empresa VARCHAR(50) NOT NULL,
-    Maximo_assentos INT NOT NULL
-);
+  Indexes {
+    (nome_modelo, codigo_aeroporto) [pk]
+  }
+}
 
--- Entidade: AERONAVE
-CREATE TABLE AERONAVE (
-    Cod_aeronave VARCHAR(20) PRIMARY KEY,
-    Nome_modelo VARCHAR(50) NOT NULL,
-    Numero_total_assentos INT NOT NULL,
-    FOREIGN KEY (Nome_modelo) REFERENCES MODELO_AERONAVE(Nome_modelo)
-);
+Table "Aeronave" {
+  "cod_aeronave" VARCHAR(20) [pk, not null]
+  "numero_total_assentos" INT [not null]
+  "nome_modelo" VARCHAR(50) [not null]
+}
 
--- Entidade: TRECHO
-CREATE TABLE TRECHO (
-    Numero_trecho INT PRIMARY KEY,
-    Aeroporto_inicio VARCHAR(10) NOT NULL,
-    Aeroporto_fim VARCHAR(10) NOT NULL,
-    Horario_inicio TIME NOT NULL,
-    Horario_termino TIME NOT NULL,
-    FOREIGN KEY (Aeroporto_inicio) REFERENCES AEROPORTO(Codigo_aeroporto),
-    FOREIGN KEY (Aeroporto_fim) REFERENCES AEROPORTO(Codigo_aeroporto)
-);
+Table "Trecho" {
+  "numero_trecho" INT [not null, increment]
+  "horario_inicio" TIME [not null]
+  "horario_termino" TIME [not null]
+  "codigo_aeroporto_origem" VARCHAR(10) [not null]
+  "codigo_aeroporto_destino" VARCHAR(10) [not null]
+  "numero_voo" INT [not null]
+}
 
--- Entidade: VOO
-CREATE TABLE VOO (
-    Numero INT PRIMARY KEY,
-    Companhia_aerea VARCHAR(50) NOT NULL,
-    Dias_da_semana VARCHAR(50) NOT NULL
-);
+Table "Voo" {
+  "numero_voo" INT [pk, not null, increment]
+  "companhia_aerea" VARCHAR(100) [not null]
+  "Dia_da_semana" VARCHAR(100) [not null]
+}
 
--- Relacionamento: PERCORRE
-CREATE TABLE PERCORRE (
-    Numero_voo INT,
-    Numero_trecho INT,
-    PRIMARY KEY (Numero_voo, Numero_trecho),
-    FOREIGN KEY (Numero_voo) REFERENCES VOO(Numero),
-    FOREIGN KEY (Numero_trecho) REFERENCES TRECHO(Numero_trecho)
-);
+Table "Trecho_Sobrevoado" {
+  "numero_trecho" INT [not null]
+  "data" DATE [not null, pk]
+  "cod_aeronave" VARCHAR(20) [not null]
+  "hora_partida" TIME [not null]
+  "codigo_aeroporto_chegada" VARCHAR(10) [not null]
+  "hora_chegada" TIME [not null]
+  "num_ordem_ocorrencia" INT [not null]
+  "numero_assentos_disponiveis" INT [not null]
 
--- Relacionamento: TARIFADO
-CREATE TABLE TARIFA (
-    Codigo VARCHAR(20) PRIMARY KEY,
-    Restricoes VARCHAR(100),
-    Quantidade INT NOT NULL
-);
+  Indexes {
+    (numero_trecho, data) [pk]
+    // numero_voo [name: "IX_TS_VOO"]
+    cod_aeronave [name: "IX_TS_AERONAVE"]
+    codigo_aeroporto_chegada [name: "IX_TS_AEROPORTOCHEGADA"]
+  }
+}
 
-CREATE TABLE TARIFADO (
-    Codigo_tarifa VARCHAR(20),
-    Numero_voo INT,
-    PRIMARY KEY (Codigo_tarifa, Numero_voo),
-    FOREIGN KEY (Codigo_tarifa) REFERENCES TARIFA(Codigo),
-    FOREIGN KEY (Numero_voo) REFERENCES VOO(Numero)
-);
+Table "Tarifa" {
+  "codigo" INT [pk, not null, increment]
+  "numero_voo" INT [not null]
+  "restricoes" VARCHAR(255)
+  "quantidade" INT [not null]
+}
 
--- Entidade: TRECHO_SOBREVOADO
-CREATE TABLE TRECHO_SOBREVOADO (
-    Numero_trecho INT,
-    Numero_voo INT,
-    Data DATE,
-    Numero_assentos_disponiveis INT NOT NULL,
-    Hora_partida TIME NOT NULL,
-    Hora_chegada TIME NOT NULL,
-    PRIMARY KEY (Numero_trecho, Numero_voo, Data),
-    FOREIGN KEY (Numero_trecho) REFERENCES TRECHO(Numero_trecho),
-    FOREIGN KEY (Numero_voo) REFERENCES VOO(Numero)
-);
 
--- Relacionamento: DESIGNADA (AERONAVE designada a TRECHO_SOBREVOADO)
-CREATE TABLE DESIGNADA (
-    Cod_aeronave VARCHAR(20),
-    Numero_trecho INT,
-    Numero_voo INT,
-    Data DATE,
-    PRIMARY KEY (Cod_aeronave, Numero_trecho, Numero_voo, Data),
-    FOREIGN KEY (Cod_aeronave) REFERENCES AERONAVE(Cod_aeronave),
-    FOREIGN KEY (Numero_trecho, Numero_voo, Data) 
-        REFERENCES TRECHO_SOBREVOADO(Numero_trecho, Numero_voo, Data)
-);
+Table "Assento" {
+  "numero_assento" VARCHAR(10) [pk, not null]
+  "numero_trecho" INT [not null]
+  "data" DATE [not null]
+  "nome_cliente" VARCHAR(100) [not null]
+  "telefone_cliente" VARCHAR(20) [not null]
 
--- Entidade: ASSENTO
-CREATE TABLE ASSENTO (
-    Numero_assento VARCHAR(10) PRIMARY KEY
-);
+  Indexes {
+    (numero_trecho, data, numero_assento) [pk]
+    (numero_trecho, data) [name: "IX_Res_TS"]
+    numero_assento [name: "IX_Res_Assento"]
+  }
+}
 
--- Relacionamento: RESERVA
-CREATE TABLE RESERVA (
-    Numero_assento VARCHAR(10),
-    Numero_trecho INT,
-    Numero_voo INT,
-    Data DATE,
-    Nome_cliente VARCHAR(100) NOT NULL,
-    Telefone_cliente VARCHAR(20) NOT NULL,
-    PRIMARY KEY (Numero_assento, Numero_trecho, Numero_voo, Data),
-    FOREIGN KEY (Numero_assento) REFERENCES ASSENTO(Numero_assento),
-    FOREIGN KEY (Numero_trecho, Numero_voo, Data) 
-        REFERENCES TRECHO_SOBREVOADO(Numero_trecho, Numero_voo, Data)
-);
+Ref:"Modelo_Aeronave"."nome_modelo" < "Pode_Pousar"."nome_modelo" [update: cascade, delete: cascade]
 
--- Relacionamento: PODE_POUSAR
-CREATE TABLE PODE_POUSAR (
-    Codigo_aeroporto VARCHAR(10),
-    Nome_modelo VARCHAR(50),
-    PRIMARY KEY (Codigo_aeroporto, Nome_modelo),
-    FOREIGN KEY (Codigo_aeroporto) REFERENCES AEROPORTO(Codigo_aeroporto),
-    FOREIGN KEY (Nome_modelo) REFERENCES MODELO_AERONAVE(Nome_modelo)
-);
+Ref:"Aeroporto"."codigo_aeroporto" < "Pode_Pousar"."codigo_aeroporto" [update: cascade, delete: cascade]
+
+Ref:"Modelo_Aeronave"."nome_modelo" < "Aeronave"."nome_modelo" [update: cascade, delete: restrict]
+
+Ref "FK_Trecho_Origem":"Aeroporto"."codigo_aeroporto" < "Trecho"."codigo_aeroporto_origem" [update: cascade, delete: restrict]
+
+Ref "FK_Trecho_Destino":"Aeroporto"."codigo_aeroporto" < "Trecho"."codigo_aeroporto_destino" [update: cascade, delete: restrict]
+
+Ref "FK_TS_Trecho":"Trecho"."numero_trecho" < "Trecho_Sobrevoado"."numero_trecho" [update: cascade, delete: restrict]
+
+Ref "FK_TS_Voo":"Voo"."numero_voo" < "Trecho"."numero_voo" [update: cascade, delete: restrict]
+
+Ref "FK_TS_Aeronave":"Aeronave"."cod_aeronave" < "Trecho_Sobrevoado"."cod_aeronave" [update: cascade, delete: restrict]
+
+Ref "FK_TS_AeroportoChegada":"Aeroporto"."codigo_aeroporto" < "Trecho_Sobrevoado"."codigo_aeroporto_chegada" [update: cascade, delete: restrict]
+
+Ref "FK_Tarifa_Voo":"Voo"."numero_voo" < "Tarifa"."numero_voo" [update: cascade, delete: cascade]
+
+Ref "FK_Res_TS":"Trecho_Sobrevoado".("numero_trecho", "data") < "Assento".("numero_trecho", "data") [update: cascade, delete: cascade]
