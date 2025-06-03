@@ -2,7 +2,7 @@ Table "Aeroporto" {
   "codigo_aeroporto" VARCHAR(10) [pk, not null]
   "nome" VARCHAR(100) [not null]
   "cidade" VARCHAR(100) [not null]
-  "estado" VARCHAR(50) [not null]
+  "estado" VARCHAR(2) [not null]
 }
 
 Table "Modelo_Aeronave" {
@@ -28,10 +28,11 @@ Table "Aeronave" {
 
 Table "Trecho" {
   "numero_trecho" INT [not null, increment]
-  "codigo_aeroporto_origem" VARCHAR(10) [not null]
-  "codigo_aeroporto_destino" VARCHAR(10) [not null]
   "horario_inicio" TIME [not null]
   "horario_termino" TIME [not null]
+  "codigo_aeroporto_origem" VARCHAR(10) [not null]
+  "codigo_aeroporto_destino" VARCHAR(10) [not null]
+  "numero_voo" INT [not null]
 }
 
 Table "Voo" {
@@ -43,16 +44,16 @@ Table "Voo" {
 Table "Trecho_Sobrevoado" {
   "numero_trecho" INT [not null]
   "data" DATE [not null, pk]
-  "numero_voo" INT [not null]
   "cod_aeronave" VARCHAR(20) [not null]
   "hora_partida" TIME [not null]
   "codigo_aeroporto_chegada" VARCHAR(10) [not null]
   "hora_chegada" TIME [not null]
   "num_ordem_ocorrencia" INT [not null]
+  "numero_assentos_disponiveis" INT [not null]
 
   Indexes {
     (numero_trecho, data) [pk]
-    numero_voo [name: "IX_TS_VOO"]
+    // numero_voo [name: "IX_TS_VOO"]
     cod_aeronave [name: "IX_TS_AERONAVE"]
     codigo_aeroporto_chegada [name: "IX_TS_AEROPORTOCHEGADA"]
   }
@@ -61,8 +62,6 @@ Table "Trecho_Sobrevoado" {
 Table "Tarifa" {
   "codigo" INT [pk, not null, increment]
   "numero_voo" INT [not null]
-  "numero_assentos_disponiveis" INT [not null]
-  "dias_da_semana" VARCHAR(50)
   "restricoes" VARCHAR(255)
   "quantidade" INT [not null]
 }
@@ -94,7 +93,7 @@ Ref "FK_Trecho_Destino":"Aeroporto"."codigo_aeroporto" < "Trecho"."codigo_aeropo
 
 Ref "FK_TS_Trecho":"Trecho"."numero_trecho" < "Trecho_Sobrevoado"."numero_trecho" [update: cascade, delete: restrict]
 
-Ref "FK_TS_Voo":"Voo"."numero_voo" < "Trecho_Sobrevoado"."numero_voo" [update: cascade, delete: restrict]
+Ref "FK_TS_Voo":"Voo"."numero_voo" < "Trecho"."numero_voo" [update: cascade, delete: restrict]
 
 Ref "FK_TS_Aeronave":"Aeronave"."cod_aeronave" < "Trecho_Sobrevoado"."cod_aeronave" [update: cascade, delete: restrict]
 
