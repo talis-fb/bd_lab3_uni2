@@ -24,7 +24,7 @@ Table "Aeronave" {
 }
 
 Table "Trecho" {
-  "numero_trecho" INT [not null, increment]
+  "numero_trecho" INT [pk, not null]
   "horario_inicio" TIME [not null]
   "horario_termino" TIME [not null]
   "codigo_aeroporto_origem" VARCHAR(10) [not null]
@@ -33,14 +33,14 @@ Table "Trecho" {
 }
 
 Table "Voo" {
-  "numero_voo" INT [pk, not null, increment]
+  "numero_voo" INT [pk, not null]
   "companhia_aerea" VARCHAR(100) [not null]
   "Dia_da_semana" VARCHAR(100) [not null]
 }
 
 Table "Trecho_Sobrevoado" {
   "data" DATE [not null, pk]
-  "numero_trecho" INT [not null]
+  "numero_trecho" INT [not null, unique]
   
 
   "cod_aeronave" VARCHAR(20) [not null]
@@ -55,7 +55,7 @@ Table "Trecho_Sobrevoado" {
 }
 
 Table "Tarifa" {
-  "codigo" INT [pk, not null, increment]
+  "codigo" INT [pk, not null]
   "numero_voo" INT [not null]
   "restricoes" VARCHAR(255)
   "quantidade" INT [not null]
@@ -64,10 +64,11 @@ Table "Tarifa" {
 
 Table "Assento" {
   "numero_assento" VARCHAR(10) [pk, not null]
-  "numero_trecho" INT [not null]
-  "data" DATE [not null]
   "nome_cliente" VARCHAR(100) [not null]
   "telefone_cliente" VARCHAR(20) [not null]
+
+  "cod_aeronave" VARCHAR(20) [not null]
+  "data" DATE [not null]
 }
 
 Ref:"Modelo_Aeronave"."nome_modelo" < "Pode_Pousar"."nome_modelo" [update: cascade, delete: cascade]
@@ -88,6 +89,8 @@ Ref "FK_TS_Aeronave":"Aeronave"."cod_aeronave" < "Trecho_Sobrevoado"."cod_aerona
 
 Ref "FK_TS_AeroportoChegada":"Aeroporto"."codigo_aeroporto" < "Trecho_Sobrevoado"."codigo_aeroporto_chegada" [update: cascade, delete: restrict]
 
+Ref "FK_TS_AeroportoChegada":"Aeroporto"."codigo_aeroporto" < "Trecho_Sobrevoado"."codigo_aeroporto_partida" [update: cascade, delete: restrict]
+
 Ref "FK_Tarifa_Voo":"Voo"."numero_voo" < "Tarifa"."numero_voo" [update: cascade, delete: cascade]
 
-Ref "FK_Res_TS":"Trecho_Sobrevoado".("numero_trecho", "data") < "Assento".("numero_trecho", "data") [update: cascade, delete: cascade]
+Ref "FK_Res_TS":"Trecho_Sobrevoado".("cod_aeronave", "data") < "Assento".("cod_aeronave", "data") [update: cascade, delete: cascade]
