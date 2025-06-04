@@ -15,9 +15,6 @@ Table "Pode_Pousar" {
   "nome_modelo" VARCHAR(50) [not null]
   "codigo_aeroporto" VARCHAR(10) [not null]
 
-  Indexes {
-    (nome_modelo, codigo_aeroporto) [pk]
-  }
 }
 
 Table "Aeronave" {
@@ -42,21 +39,19 @@ Table "Voo" {
 }
 
 Table "Trecho_Sobrevoado" {
-  "numero_trecho" INT [not null]
   "data" DATE [not null, pk]
-  "cod_aeronave" VARCHAR(20) [not null]
-  "hora_partida" TIME [not null]
-  "codigo_aeroporto_chegada" VARCHAR(10) [not null]
-  "hora_chegada" TIME [not null]
-  "num_ordem_ocorrencia" INT [not null]
-  "numero_assentos_disponiveis" INT [not null]
+  "numero_trecho" INT [not null]
+  
 
-  Indexes {
-    (numero_trecho, data) [pk]
-    // numero_voo [name: "IX_TS_VOO"]
-    cod_aeronave [name: "IX_TS_AERONAVE"]
-    codigo_aeroporto_chegada [name: "IX_TS_AEROPORTOCHEGADA"]
-  }
+  "cod_aeronave" VARCHAR(20) [not null]
+  
+  "codigo_aeroporto_partida" VARCHAR(10)
+  "hora_partida" TIME
+
+  "codigo_aeroporto_chegada" VARCHAR(10)
+  "hora_chegada" TIME
+
+  "numero_assentos_disponiveis" INT [not null]
 }
 
 Table "Tarifa" {
@@ -73,12 +68,6 @@ Table "Assento" {
   "data" DATE [not null]
   "nome_cliente" VARCHAR(100) [not null]
   "telefone_cliente" VARCHAR(20) [not null]
-
-  Indexes {
-    (numero_trecho, data, numero_assento) [pk]
-    (numero_trecho, data) [name: "IX_Res_TS"]
-    numero_assento [name: "IX_Res_Assento"]
-  }
 }
 
 Ref:"Modelo_Aeronave"."nome_modelo" < "Pode_Pousar"."nome_modelo" [update: cascade, delete: cascade]
