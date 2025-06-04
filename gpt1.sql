@@ -1,104 +1,86 @@
-Table "Aeroporto" {
-  "codigo_aeroporto" VARCHAR(10) [pk, not null]
-  "nome" VARCHAR(100) [not null]
-  "cidade" VARCHAR(100) [not null]
-  "estado" VARCHAR(2) [not null]
-}
+CREATE TABLE `Aeroporto` (
+  `codigo_aeroporto` VARCHAR(10) PRIMARY KEY NOT NULL,
+  `nome` VARCHAR(100) NOT NULL,
+  `cidade` VARCHAR(100) NOT NULL,
+  `estado` VARCHAR(2) NOT NULL
+);
 
-Table "Modelo_Aeronave" {
-  "nome_modelo" VARCHAR(50) [pk, not null]
-  "empresa" VARCHAR(100) [not null]
-  "maximo_assentos" INT [not null]
-}
+CREATE TABLE `Modelo_Aeronave` (
+  `nome_modelo` VARCHAR(50) PRIMARY KEY NOT NULL,
+  `empresa` VARCHAR(100) NOT NULL,
+  `maximo_assentos` INT NOT NULL
+);
 
-Table "Pode_Pousar" {
-  "nome_modelo" VARCHAR(50) [not null]
-  "codigo_aeroporto" VARCHAR(10) [not null]
+CREATE TABLE `Pode_Pousar` (
+  `nome_modelo` VARCHAR(50) NOT NULL,
+  `codigo_aeroporto` VARCHAR(10) NOT NULL
+);
 
-  Indexes {
-    (nome_modelo, codigo_aeroporto) [pk]
-  }
-}
+CREATE TABLE `Aeronave` (
+  `cod_aeronave` VARCHAR(20) PRIMARY KEY NOT NULL,
+  `numero_total_assentos` INT NOT NULL,
+  `nome_modelo` VARCHAR(50) NOT NULL
+);
 
-Table "Aeronave" {
-  "cod_aeronave" VARCHAR(20) [pk, not null]
-  "numero_total_assentos" INT [not null]
-  "nome_modelo" VARCHAR(50) [not null]
-}
+CREATE TABLE `Trecho` (
+  `numero_trecho` INT NOT NULL AUTO_INCREMENT,
+  `horario_inicio` TIME NOT NULL,
+  `horario_termino` TIME NOT NULL,
+  `codigo_aeroporto_origem` VARCHAR(10) NOT NULL,
+  `codigo_aeroporto_destino` VARCHAR(10) NOT NULL,
+  `numero_voo` INT NOT NULL
+);
 
-Table "Trecho" {
-  "numero_trecho" INT [not null, increment]
-  "horario_inicio" TIME [not null]
-  "horario_termino" TIME [not null]
-  "codigo_aeroporto_origem" VARCHAR(10) [not null]
-  "codigo_aeroporto_destino" VARCHAR(10) [not null]
-  "numero_voo" INT [not null]
-}
+CREATE TABLE `Voo` (
+  `numero_voo` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `companhia_aerea` VARCHAR(100) NOT NULL,
+  `Dia_da_semana` VARCHAR(100) NOT NULL
+);
 
-Table "Voo" {
-  "numero_voo" INT [pk, not null, increment]
-  "companhia_aerea" VARCHAR(100) [not null]
-  "Dia_da_semana" VARCHAR(100) [not null]
-}
+CREATE TABLE `Trecho_Sobrevoado` (
+  `data` DATE PRIMARY KEY NOT NULL,
+  `numero_trecho` INT NOT NULL,
+  `cod_aeronave` VARCHAR(20) NOT NULL,
+  `codigo_aeroporto_partida` VARCHAR(10),
+  `hora_partida` TIME,
+  `codigo_aeroporto_chegada` VARCHAR(10),
+  `hora_chegada` TIME,
+  `numero_assentos_disponiveis` INT NOT NULL
+);
 
-Table "Trecho_Sobrevoado" {
-  "numero_trecho" INT [not null]
-  "data" DATE [not null, pk]
-  "cod_aeronave" VARCHAR(20) [not null]
-  "hora_partida" TIME [not null]
-  "codigo_aeroporto_chegada" VARCHAR(10) [not null]
-  "hora_chegada" TIME [not null]
-  "num_ordem_ocorrencia" INT [not null]
-  "numero_assentos_disponiveis" INT [not null]
+CREATE TABLE `Tarifa` (
+  `codigo` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `numero_voo` INT NOT NULL,
+  `restricoes` VARCHAR(255),
+  `quantidade` INT NOT NULL
+);
 
-  Indexes {
-    (numero_trecho, data) [pk]
-    // numero_voo [name: "IX_TS_VOO"]
-    cod_aeronave [name: "IX_TS_AERONAVE"]
-    codigo_aeroporto_chegada [name: "IX_TS_AEROPORTOCHEGADA"]
-  }
-}
+CREATE TABLE `Assento` (
+  `numero_assento` VARCHAR(10) PRIMARY KEY NOT NULL,
+  `numero_trecho` INT NOT NULL,
+  `data` DATE NOT NULL,
+  `nome_cliente` VARCHAR(100) NOT NULL,
+  `telefone_cliente` VARCHAR(20) NOT NULL
+);
 
-Table "Tarifa" {
-  "codigo" INT [pk, not null, increment]
-  "numero_voo" INT [not null]
-  "restricoes" VARCHAR(255)
-  "quantidade" INT [not null]
-}
+ALTER TABLE `Pode_Pousar` ADD FOREIGN KEY (`nome_modelo`) REFERENCES `Modelo_Aeronave` (`nome_modelo`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE `Pode_Pousar` ADD FOREIGN KEY (`codigo_aeroporto`) REFERENCES `Aeroporto` (`codigo_aeroporto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-Table "Assento" {
-  "numero_assento" VARCHAR(10) [pk, not null]
-  "numero_trecho" INT [not null]
-  "data" DATE [not null]
-  "nome_cliente" VARCHAR(100) [not null]
-  "telefone_cliente" VARCHAR(20) [not null]
+ALTER TABLE `Aeronave` ADD FOREIGN KEY (`nome_modelo`) REFERENCES `Modelo_Aeronave` (`nome_modelo`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-  Indexes {
-    (numero_trecho, data, numero_assento) [pk]
-    (numero_trecho, data) [name: "IX_Res_TS"]
-    numero_assento [name: "IX_Res_Assento"]
-  }
-}
+ALTER TABLE `Trecho` ADD CONSTRAINT `FK_Trecho_Origem` FOREIGN KEY (`codigo_aeroporto_origem`) REFERENCES `Aeroporto` (`codigo_aeroporto`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-Ref:"Modelo_Aeronave"."nome_modelo" < "Pode_Pousar"."nome_modelo" [update: cascade, delete: cascade]
+ALTER TABLE `Trecho` ADD CONSTRAINT `FK_Trecho_Destino` FOREIGN KEY (`codigo_aeroporto_destino`) REFERENCES `Aeroporto` (`codigo_aeroporto`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-Ref:"Aeroporto"."codigo_aeroporto" < "Pode_Pousar"."codigo_aeroporto" [update: cascade, delete: cascade]
+ALTER TABLE `Trecho_Sobrevoado` ADD CONSTRAINT `FK_TS_Trecho` FOREIGN KEY (`numero_trecho`) REFERENCES `Trecho` (`numero_trecho`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-Ref:"Modelo_Aeronave"."nome_modelo" < "Aeronave"."nome_modelo" [update: cascade, delete: restrict]
+ALTER TABLE `Trecho` ADD CONSTRAINT `FK_TS_Voo` FOREIGN KEY (`numero_voo`) REFERENCES `Voo` (`numero_voo`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-Ref "FK_Trecho_Origem":"Aeroporto"."codigo_aeroporto" < "Trecho"."codigo_aeroporto_origem" [update: cascade, delete: restrict]
+ALTER TABLE `Trecho_Sobrevoado` ADD CONSTRAINT `FK_TS_Aeronave` FOREIGN KEY (`cod_aeronave`) REFERENCES `Aeronave` (`cod_aeronave`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-Ref "FK_Trecho_Destino":"Aeroporto"."codigo_aeroporto" < "Trecho"."codigo_aeroporto_destino" [update: cascade, delete: restrict]
+ALTER TABLE `Trecho_Sobrevoado` ADD CONSTRAINT `FK_TS_AeroportoChegada` FOREIGN KEY (`codigo_aeroporto_chegada`) REFERENCES `Aeroporto` (`codigo_aeroporto`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-Ref "FK_TS_Trecho":"Trecho"."numero_trecho" < "Trecho_Sobrevoado"."numero_trecho" [update: cascade, delete: restrict]
+ALTER TABLE `Tarifa` ADD CONSTRAINT `FK_Tarifa_Voo` FOREIGN KEY (`numero_voo`) REFERENCES `Voo` (`numero_voo`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-Ref "FK_TS_Voo":"Voo"."numero_voo" < "Trecho"."numero_voo" [update: cascade, delete: restrict]
-
-Ref "FK_TS_Aeronave":"Aeronave"."cod_aeronave" < "Trecho_Sobrevoado"."cod_aeronave" [update: cascade, delete: restrict]
-
-Ref "FK_TS_AeroportoChegada":"Aeroporto"."codigo_aeroporto" < "Trecho_Sobrevoado"."codigo_aeroporto_chegada" [update: cascade, delete: restrict]
-
-Ref "FK_Tarifa_Voo":"Voo"."numero_voo" < "Tarifa"."numero_voo" [update: cascade, delete: cascade]
-
-Ref "FK_Res_TS":"Trecho_Sobrevoado".("numero_trecho", "data") < "Assento".("numero_trecho", "data") [update: cascade, delete: cascade]
+ALTER TABLE `Assento` ADD CONSTRAINT `FK_Res_TS` FOREIGN KEY (`numero_trecho`, `data`) REFERENCES `Trecho_Sobrevoado` (`numero_trecho`, `data`) ON DELETE CASCADE ON UPDATE CASCADE;
