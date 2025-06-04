@@ -1,66 +1,58 @@
-INSERT INTO Aeroporto VALUES 
-('GRU', 'Aeroporto Internacional de Guarulhos', 'São Paulo', 'SP'),
-('GIG', 'Aeroporto Internacional do Galeão', 'Rio de Janeiro', 'RJ'),
+---  Inserindo Aeroportos
+INSERT INTO Aeroporto (codigo_aeroporto, nome, cidade, estado) VALUES
+('GRU', 'Aeroporto Internacional de São Paulo', 'Guarulhos', 'SP'),
+('GIG', 'Aeroporto Internacional do Rio de Janeiro', 'Rio de Janeiro', 'RJ'),
 ('BSB', 'Aeroporto Internacional de Brasília', 'Brasília', 'DF'),
 ('SSA', 'Aeroporto Internacional de Salvador', 'Salvador', 'BA'),
-('REC', 'Aeroporto Internacional do Recife', 'Recife', 'PE');
+('POA', 'Aeroporto Internacional de Porto Alegre', 'Porto Alegre', 'RS');
 
+-- Inserindo Modelos de Aeronaves
+INSERT INTO Modelo_Aeronave (nome_modelo, empresa, maximo_assentos) VALUES
+('Airbus A320', 'Airbus', 180),
+('Boeing 737', 'Boeing', 189),
+('Embraer E195', 'Embraer', 124);
 
-
-INSERT INTO Modelo_Aeronave VALUES 
-('Boeing 737', 'Boeing', 180),
-('Airbus A320', 'Airbus', 170),
-('Embraer E195', 'Embraer', 124),
-('Boeing 777', 'Boeing', 396);
-
-
-INSERT INTO Pode_Pousar VALUES 
+-- Relacionando onde cada modelo pode pousar
+INSERT INTO Pode_Pousar (nome_modelo, codigo_aeroporto) VALUES
+('Airbus A320', 'GRU'),
+('Airbus A320', 'GIG'),
+('Airbus A320', 'BSB'),
+('Airbus A320', 'SSA'),
 ('Boeing 737', 'GRU'),
 ('Boeing 737', 'GIG'),
-('Airbus A320', 'GRU'),
-('Airbus A320', 'BSB'),
+('Boeing 737', 'POA'),
+('Embraer E195', 'GRU'),
+('Embraer E195', 'POA'),
 ('Embraer E195', 'SSA'),
-('Embraer E195', 'REC'),
-('Boeing 777', 'GRU'),
-('Boeing 777', 'GIG');
+('Embraer E195', 'BSB');
 
-INSERT INTO Aeronave VALUES 
-('PT-ABC', 180, 'Boeing 737'),
-('PT-DEF', 170, 'Airbus A320'),
-('PT-GHI', 124, 'Embraer E195'),
-('PT-JKL', 396, 'Boeing 777');
+-- Inserindo Aeronaves
+INSERT INTO Aeronave (cod_aeronave, numero_total_assentos, nome_modelo) VALUES
+('PT-ABC', 180, 'Airbus A320'),
+('PT-DEF', 189, 'Boeing 737'),
+('PT-GHI', 124, 'Embraer E195');
 
-INSERT INTO Voo (companhia_aerea, Dia_da_semana) VALUES 
-('LATAM', 'Segunda'),
-('GOL', 'Terça'),
-('AZUL', 'Quarta');
+-- Inserindo Voos
+INSERT INTO Voo (numero_voo, companhia_aerea, Dia_da_semana) VALUES
+(1001, 'LATAM', 'Segunda'),
+(1002, 'GOL', 'Quarta'),
+(1003, 'AZUL', 'Sexta');
 
-INSERT INTO Trecho (horario_inicio, horario_termino, codigo_aeroporto_origem, codigo_aeroporto_destino, numero_voo) VALUES
-('08:00:00', '10:00:00', 'GRU', 'GIG', 1),
-('12:00:00', '14:00:00', 'GIG', 'BSB', 1),
-('16:00:00', '18:00:00', 'BSB', 'REC', 2),
-('09:00:00', '11:00:00', 'SSA', 'GRU', 3);
+-- Inserindo Trechos
+INSERT INTO Trecho (numero_trecho, horario_inicio, horario_termino, codigo_aeroporto_origem, codigo_aeroporto_destino, numero_voo) VALUES
+(1, '08:00:00', '10:00:00', 'GRU', 'GIG', 1001),
+(2, '14:00:00', '16:00:00', 'BSB', 'SSA', 1002),
+(3, '18:00:00', '20:00:00', 'POA', 'GRU', 1003);
 
+-- Inserindo Trechos Sobrevoados
+INSERT INTO Trecho_Sobrevoado (numero_trecho, data, cod_aeronave, codigo_aeroporto_partida, hora_partida, codigo_aeroporto_chegada, hora_chegada, numero_assentos_disponiveis) VALUES
+(1, '2025-06-10', 'PT-ABC', 'GRU', '08:10:00', 'GIG', '10:05:00', 150),
+(2, '2025-06-10', 'PT-DEF', 'BSB', '14:05:00', 'SSA', '16:10:00', 160),
+(3, '2025-06-10', 'PT-GHI', 'POA', '18:00:00', 'GRU', '20:05:00', 100);
 
-INSERT INTO Trecho_Sobrevoado VALUES 
-('2025-06-10', 1, 'PT-ABC', 'GRU', '08:00:00', 'GIG', '10:00:00', 50),
-('2025-06-10', 2, 'PT-DEF', 'GIG', '12:00:00', 'BSB', '14:00:00', 60),
-('2025-06-11', 3, 'PT-GHI', 'BSB', '16:00:00', 'REC', '18:00:00', 40),
-('2025-06-12', 4, 'PT-JKL', 'SSA', '09:00:00', 'GRU', '11:00:00', 100);
-
-
-INSERT INTO Tarifa (numero_voo, restricoes, quantidade) VALUES 
-(1, 'Reembolsável', 20),
-(1, 'Não-reembolsável', 30),
-(2, 'Bagagem incluída', 15),
-(3, 'Assento premium', 10);
-
-
-INSERT INTO Assento VALUES 
-('1A', 1, '2025-06-10', 'Maria Silva', '11999999999'),
-('1B', 1, '2025-06-10', 'João Pereira', '21988888888'),
-('2A', 2, '2025-06-10', 'Carlos Souza', '61977777777'),
-('3C', 3, '2025-06-11', 'Ana Costa', '81966666666'),
-('4D', 4, '2025-06-12', 'Fernanda Lima', '71955555555');
-
-
+-- Inserindo Tarifas
+INSERT INTO Tarifa (codigo, numero_voo, restricoes, quantidade) VALUES
+(1, 1001, 'Bagagem de mão até 10kg', 50),
+(2, 1001, 'Bagagem despachada até 23kg', 30),
+(3, 1002, 'Somente assento padrão', 40),
+(4, 1003, 'Inclui refeição e bagagem', 20);
