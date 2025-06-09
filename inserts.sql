@@ -1,58 +1,46 @@
----  Inserindo Aeroportos
-INSERT INTO Aeroporto (codigo_aeroporto, nome, cidade, estado) VALUES
-('GRU', 'Aeroporto Internacional de São Paulo', 'Guarulhos', 'SP'),
-('GIG', 'Aeroporto Internacional do Rio de Janeiro', 'Rio de Janeiro', 'RJ'),
-('BSB', 'Aeroporto Internacional de Brasília', 'Brasília', 'DF'),
-('SSA', 'Aeroporto Internacional de Salvador', 'Salvador', 'BA'),
-('POA', 'Aeroporto Internacional de Porto Alegre', 'Porto Alegre', 'RS');
+-- 1. Aeroporto
+INSERT INTO `Aeroporto` (`codigo_aeroporto`, `nome`, `cidade`, `estado`) VALUES
+('GRU', 'Aeroporto Internacional de Guarulhos', 'São Paulo', 'SP'),
+('GIG', 'Aeroporto Internacional do Galeão', 'Rio de Janeiro', 'RJ'),
+('CNF', 'Aeroporto de Confins', 'Belo Horizonte', 'MG');
 
--- Inserindo Modelos de Aeronaves
-INSERT INTO Modelo_Aeronave (nome_modelo, empresa, maximo_assentos) VALUES
-('Airbus A320', 'Airbus', 180),
+-- 2. Modelo_Aeronave
+INSERT INTO `Modelo_Aeronave` (`nome_modelo`, `empresa`, `maximo_assentos`) VALUES
 ('Boeing 737', 'Boeing', 189),
-('Embraer E195', 'Embraer', 124);
+('Airbus A320', 'Airbus', 180);
 
--- Relacionando onde cada modelo pode pousar
-INSERT INTO Pode_Pousar (nome_modelo, codigo_aeroporto) VALUES
-('Airbus A320', 'GRU'),
-('Airbus A320', 'GIG'),
-('Airbus A320', 'BSB'),
-('Airbus A320', 'SSA'),
+-- 3. Pode_Pousar
+INSERT INTO `Pode_Pousar` (`nome_modelo`, `codigo_aeroporto`) VALUES
 ('Boeing 737', 'GRU'),
 ('Boeing 737', 'GIG'),
-('Boeing 737', 'POA'),
-('Embraer E195', 'GRU'),
-('Embraer E195', 'POA'),
-('Embraer E195', 'SSA'),
-('Embraer E195', 'BSB');
+('Airbus A320', 'CNF');
 
--- Inserindo Aeronaves
-INSERT INTO Aeronave (cod_aeronave, numero_total_assentos, nome_modelo) VALUES
-('PT-ABC', 180, 'Airbus A320'),
-('PT-DEF', 189, 'Boeing 737'),
-('PT-GHI', 124, 'Embraer E195');
+-- 4. Aeronave
+INSERT INTO `Aeronave` (`cod_aeronave`, `numero_total_assentos`, `nome_modelo`) VALUES
+('PT-ABC1', 180, 'Boeing 737'),
+('PT-DEF2', 175, 'Airbus A320');
 
--- Inserindo Voos
-INSERT INTO Voo (numero_voo, companhia_aerea, Dia_da_semana) VALUES
-(1001, 'LATAM', 'Segunda'),
-(1002, 'GOL', 'Quarta'),
-(1003, 'AZUL', 'Sexta');
+-- 5. Voo
+INSERT INTO `Voo` (`numero_voo`, `companhia_aerea`, `Dia_da_semana`) VALUES
+(1001, 'LATAM Airlines', 'Segunda-feira'),
+(1002, 'GOL Linhas Aéreas', 'Sexta-feira');
 
--- Inserindo Trechos
-INSERT INTO Trecho (numero_trecho, horario_inicio, horario_termino, codigo_aeroporto_origem, codigo_aeroporto_destino, numero_voo) VALUES
+-- 6. Trecho
+INSERT INTO `Trecho` (`numero_trecho`, `horario_inicio`, `horario_termino`, `codigo_aeroporto_origem`, `codigo_aeroporto_destino`, `numero_voo`) VALUES
 (1, '08:00:00', '10:00:00', 'GRU', 'GIG', 1001),
-(2, '14:00:00', '16:00:00', 'BSB', 'SSA', 1002),
-(3, '18:00:00', '20:00:00', 'POA', 'GRU', 1003);
+(2, '12:00:00', '14:00:00', 'CNF', 'GRU', 1002);
 
--- Inserindo Trechos Sobrevoados
-INSERT INTO Trecho_Sobrevoado (numero_trecho, data, cod_aeronave, codigo_aeroporto_partida, hora_partida, codigo_aeroporto_chegada, hora_chegada, numero_assentos_disponiveis) VALUES
-(1, '2025-06-10', 'PT-ABC', 'GRU', '08:10:00', 'GIG', '10:05:00', 150),
-(2, '2025-06-10', 'PT-DEF', 'BSB', '14:05:00', 'SSA', '16:10:00', 160),
-(3, '2025-06-10', 'PT-GHI', 'POA', '18:00:00', 'GRU', '20:05:00', 100);
+-- 7. Trecho_Sobrevoado
+INSERT INTO `Trecho_Sobrevoado` (`numero_trecho`, `data`, `cod_aeronave`, `codigo_aeroporto_partida`, `hora_partida`, `codigo_aeroporto_chegada`, `hora_chegada`, `numero_assentos_disponiveis`) VALUES
+(1, '2025-06-01', 'PT-ABC1', 'GRU', '08:00:00', 'GIG', '10:00:00', 50),
+(2, '2025-06-02', 'PT-DEF2', 'CNF', '12:00:00', 'GRU', '14:00:00', 70);
 
--- Inserindo Tarifas
-INSERT INTO Tarifa (codigo, numero_voo, restricoes, quantidade) VALUES
-(1, 1001, 'Bagagem de mão até 10kg', 50),
-(2, 1001, 'Bagagem despachada até 23kg', 30),
-(3, 1002, 'Somente assento padrão', 40),
-(4, 1003, 'Inclui refeição e bagagem', 20);
+-- 8. Tarifa
+INSERT INTO `Tarifa` (`codigo`, `numero_voo`, `restricoes`, `quantidade`) VALUES
+(1, 1001, 'Não reembolsável', 30),
+(2, 1002, 'Flexível', 40);
+
+-- 9. Assento
+INSERT INTO `Assento` (`numero_assento`, `nome_cliente`, `telefone_cliente`, `cod_aeronave`, `data`) VALUES
+('1A', 'João Silva', '11999999999', 'PT-ABC1', '2025-06-01'),
+('2B', 'Maria Souza', '21988888888', 'PT-DEF2', '2025-06-02');
